@@ -1,41 +1,93 @@
 import { useState } from "react";
-import { registerUser } from "../api/authApi";
+import { useNavigate, Link } from "react-router-dom";
+import API from "../api/auth.api";
 
 function Register() {
-  const [form, setForm] = useState({
-    name: "",
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
   });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await registerUser(form);
+      const res = await API.post(
+        "/register",
+        formData
+      );
 
-      // token save (simple way)
-      localStorage.setItem("token", res.data.token);
+      alert(res.data.message);
 
-      alert("Registered Successfully");
-    } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      navigate("/login");
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Registration Failed"
+      );
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="name" placeholder="Name" onChange={handleChange} />
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} />
-      <button type="submit">Register</button>
-    </form>
+    <div>
+      <h1>Register</h1>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+        />
+
+        <br />
+        <br />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+
+        <br />
+        <br />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+
+        <br />
+        <br />
+
+        <button type="submit">
+          Register
+        </button>
+      </form>
+
+      <br />
+
+      <Link to="/login">
+        Already have account?
+      </Link>
+    </div>
   );
-  navigate("/dashboard");
 }
 
 export default Register;

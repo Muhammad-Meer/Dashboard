@@ -1,47 +1,81 @@
 import { useState } from "react";
-import { loginUser } from "../api/authApi";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
+import API from "../api/auth.api";
 
 function Login() {
-  const [form, setForm] = useState({
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await loginUser(form);
+      const res = await API.post(
+        "/login",
+        formData
+      );
 
-      localStorage.setItem("token", res.data.token);
+      alert(res.data.message);
 
-      alert("Login Success");
-    } catch (err) {
-      alert("Invalid credentials");
+      navigate("/");
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Login Failed"
+      );
     }
   };
 
-  const navigate = useNavigate();
-
-
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} />
-      <button type="submit">Login</button>
-    </form>
+    <div>
+      <h1>Login</h1>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+
+        <br />
+        <br />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+
+        <br />
+        <br />
+
+        <button type="submit">
+          Login
+        </button>
+      </form>
+
+      <br />
+
+      <Link to="/register">
+        Create Account
+      </Link>
+    </div>
   );
-  // login success ke baad
-navigate("/dashboard");
 }
 
 export default Login;
-
-
-
